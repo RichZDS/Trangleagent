@@ -11,3 +11,5 @@
 
 # 重大进程 多人websocket聊天室 
 技术栈 websocket rabbitmq 
+
+每个用户可以创建多个角色
