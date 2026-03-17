@@ -12,8 +12,9 @@ type LoginReq struct {
 }
 
 type LoginRes struct {
-	Token   string `json:"token" dc:"JWT token for authentication"`
-	Account string `json:"account"`
+	Token    string `json:"token" dc:"JWT token for authentication"`
+	Account  string `json:"account"`
+	UserType string `json:"userType" dc:"用户类型：user/admin"`
 }
 
 type RegisterReq struct {
@@ -40,8 +41,9 @@ type LoginByEmailReq struct {
 }
 
 type LoginByEmailRes struct {
-	Token string `json:"token" dc:"JWT token for authentication"`
-	Email string `json:"email"`
+	Token    string `json:"token" dc:"JWT token for authentication"`
+	Email    string `json:"email"`
+	UserType string `json:"userType" dc:"用户类型：user/admin"`
 }
 
 // 通过邮箱注册

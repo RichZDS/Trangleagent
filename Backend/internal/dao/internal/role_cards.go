@@ -35,15 +35,15 @@ type RoleCardsColumns struct {
 	AgentName      string // 特工名字
 	CodeName       string // 代号
 	Gender         string // 性别
-	QaMeticulous   string // Meticulousness (0-100, QA)
-	QaDeception    string // Deception (0-100, QA)
-	QaVigor        string // Vigor / Drive (0-100, QA)
-	QaEmpathy      string // Empathy (0-100, QA)
-	QaInitiative   string // Initiative (0-100, QA)
-	QaResilience   string // Resilience / Persistence (0-100, QA)
-	QaPresence     string // Presence / Charisma (0-100, QA)
-	QaProfessional string // Professionalism (0-100, QA)
-	QaDiscretion   string // Discretion / Low profile (0-100, QA)
+	QaMeticulous   string // QA Meticulousness (0-100)
+	QaDeception    string // QA Deception (0-100)
+	QaVigor        string // QA Vigor (0-100)
+	QaEmpathy      string // QA Empathy (0-100)
+	QaInitiative   string // QA Initiative (0-100)
+	QaResilience   string // QA Resilience (0-100)
+	QaPresence     string // QA Presence (0-100)
+	QaProfessional string // QA Professionalism (0-100)
+	QaDiscretion   string // QA Discretion (0-100)
 	CreatedAt      string // 创建时间
 	UpdatedAt      string // 更新时间
 }

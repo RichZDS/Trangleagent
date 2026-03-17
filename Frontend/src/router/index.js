@@ -1,6 +1,7 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import Login from '../views/Login.vue'
 import Layout from '../components/Layout.vue'
+import Home from '../views/Home.vue'
 import Main from '../views/Main.vue'
 import User from '../views/User.vue'
 import Profile from '../views/Profile.vue'
@@ -29,12 +30,12 @@ const router = createRouter({
                 {
                     path: 'main',
                     name: 'main',
-                    component: Main,
+                    component: Home,
                 },
                 {
                     path: 'rooms',
                     name: 'rooms',
-                    component: Main, // 复用 Main 作为房间大厅
+                    component: Main,
                 },
                 {
                     path: 'users',
@@ -80,6 +81,14 @@ router.beforeEach((to, from, next) => {
         next()
     } else if (to.name !== 'login' && !token) {
         next({name: 'login'})
+    } else if (to.name === 'users') {
+        // 人员档案仅 admin 可见
+        const userType = localStorage.getItem('ta_user_type')
+        if (userType !== 'admin') {
+            next({name: 'main'})
+        } else {
+            next()
+        }
     } else {
         next()
     }

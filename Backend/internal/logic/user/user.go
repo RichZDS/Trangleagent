@@ -7,9 +7,12 @@ import (
 	"TrangleAgent/internal/model/entity"
 	"TrangleAgent/internal/service"
 	"context"
+	"time"
 
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/os/gtime"
 )
 
 type sUser struct{}
@@ -81,18 +84,30 @@ func (s *sUser) UserList(ctx context.Context, req *v1.UserListReq) (res *v1.User
 }
 
 func (s *sUser) UserView(ctx context.Context, req *v1.UserViewReq) (res *v1.UserViewRes, err error) {
-	// 创建数据库查询模型
 	m := dao.Users.Ctx(ctx)
-
-	// 根据账号查询
-	if req.Account != "" {
+	if req.Id != 0 {
+		m = m.Where(dao.Users.Columns().Id, req.Id)
+	} else if req.Account != "" {
 		m = m.Where(dao.Users.Columns().Account, req.Account)
+	} else if req.Nickname != "" {
+		m = m.Where(dao.Users.Columns().Nickname, req.Nickname)
 	}
 
 	res = &v1.UserViewRes{}
 	err = m.Scan(&res.UserViewParams)
 	if err != nil {
 		return nil, gerror.Wrap(err, "查询用户信息失败")
+	}
+
+	// 若有当前选中角色，附带其 ARC
+	if res.ActiveRoleId > 0 {
+		var role entity.RoleCards
+		err = dao.RoleCards.Ctx(ctx).Where(dao.RoleCards.Columns().Id, res.ActiveRoleId).Scan(&role)
+		if err == nil {
+			res.ArcAbnormal = role.ArcAbnormal
+			res.ArcReality = role.ArcReality
+			res.ArcPosition = role.ArcPosition
+		}
 	}
 
 	return res, nil
@@ -119,14 +134,94 @@ func (s *sUser) UserUpdate(ctx context.Context, req *v1.UserUpdateReq) (res *v1.
 }
 
 func (s *sUser) UserDelete(ctx context.Context, req *v1.UserDeleteReq) (res *v1.UserDeleteRes, err error) {
-	// 根据账号删除用户
 	_, err = dao.Users.Ctx(ctx).Where(dao.Users.Columns().Account, req.Account).Delete()
 	if err != nil {
 		return nil, gerror.Wrap(err, "删除用户失败")
 	}
-
 	res = &v1.UserDeleteRes{}
 	return res, nil
+}
+
+// ExpAdd 增加用户经验，等级 = 1 + exp/100
+func (s *sUser) ExpAdd(ctx context.Context, req *v1.ExpAddReq) (res *v1.ExpAddRes, err error) {
+	_, err = dao.Users.Ctx(ctx).Where(dao.Users.Columns().Id, req.UserId).Increment(dao.Users.Columns().Exp, int(req.Amount))
+	if err != nil {
+		return nil, gerror.Wrap(err, "增加经验失败")
+	}
+	var u entity.Users
+	err = dao.Users.Ctx(ctx).Where(dao.Users.Columns().Id, req.UserId).Scan(&u)
+	if err != nil {
+		return nil, gerror.Wrap(err, "查询用户失败")
+	}
+	level := uint(1) + u.Exp/100
+	_, _ = dao.Users.Ctx(ctx).Where(dao.Users.Columns().Id, req.UserId).Data(map[string]interface{}{dao.Users.Columns().Level: level}).Update()
+	return &v1.ExpAddRes{Exp: u.Exp, Level: level}, nil
+}
+
+const checkInExpAmount = 20 // 签到一次 +20 经验
+
+// calcLevel 根据经验计算等级：每 100 经验升 1 级，level = 1 + exp/100
+func calcLevel(exp uint) uint {
+	if exp == 0 {
+		return 1
+	}
+	return 1 + exp/100
+}
+
+// CheckIn 每日签到，+20 经验，等级 = 1 + exp/100
+func (s *sUser) CheckIn(ctx context.Context, req *v1.CheckInReq) (res *v1.CheckInRes, err error) {
+	var u entity.Users
+	err = dao.Users.Ctx(ctx).Where(dao.Users.Columns().Id, req.UserId).Scan(&u)
+	if err != nil {
+		return nil, gerror.Wrap(err, "查询用户失败")
+	}
+	// 检查今日是否已签到（按本地日期）
+	now := time.Now()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	if u.LastCheckinAt != nil {
+		last := u.LastCheckinAt.Time
+		lastDay := time.Date(last.Year(), last.Month(), last.Day(), 0, 0, 0, 0, last.Location())
+		if !today.After(lastDay) {
+			return nil, gerror.NewCode(gcode.CodeInvalidParameter, "今日已签到，请明日再来")
+		}
+	}
+	// 使用事务确保原子性，并用 Raw SQL 避免 ORM schema 缓存导致的 "input data match no fields"
+	err = dao.Users.Ctx(ctx).Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		// 1. 先更新签到时间（防止重复签到）
+		_, e := tx.Exec("UPDATE users SET last_checkin_at = ? WHERE id = ?", gtime.New(now).Format("Y-m-d H:i:s"), req.UserId)
+		if e != nil {
+			return gerror.Wrap(e, "更新签到时间失败")
+		}
+		// 2. 增加经验
+		_, e = tx.Model("users").Where("id", req.UserId).Increment("exp", checkInExpAmount)
+		if e != nil {
+			return gerror.Wrap(e, "签到失败")
+		}
+		// 3. 查询最新 exp 并更新 level
+		var u2 entity.Users
+		e = tx.Model("users").Where("id", req.UserId).Scan(&u2)
+		if e != nil {
+			return gerror.Wrap(e, "查询用户失败")
+		}
+		level := calcLevel(u2.Exp)
+		_, e = tx.Exec("UPDATE users SET level = ? WHERE id = ?", level, req.UserId)
+		if e != nil {
+			return gerror.Wrap(e, "更新等级失败")
+		}
+		// 写回外部变量供返回
+		u = u2
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	level := calcLevel(u.Exp)
+	return &v1.CheckInRes{
+		Exp:      u.Exp,
+		Level:    level,
+		AddedExp: checkInExpAmount,
+		Message:  "签到成功，获得 20 经验",
+	}, nil
 }
 
 // RoleCreate 创建角色（每个用户可创建多个角色，每个角色拥有不同的素质保障）

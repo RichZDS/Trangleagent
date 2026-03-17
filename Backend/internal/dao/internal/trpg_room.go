@@ -22,24 +22,24 @@ type TrpgRoomDao struct {
 // TrpgRoomColumns defines and stores column names for the table trpg_room.
 type TrpgRoomColumns struct {
 	Id             string // 自增主键
-	RoomId         string // 房间全局唯一ID（建议UUID）
-	RoomCode       string // 房间号（玩家看到/输入的房间号）
+	RoomId         string // 房间全局唯一ID
+	RoomCode       string // 房间号
 	RoomName       string // 房间名称
-	HostId         string // 主持人用户ID（GM/KP/经理，对应用户表id）
-	HostNickname   string // 主持人昵称（冗余字段，可选）
-	MaxPlayers     string // 最大玩家人数（不含主持人，可按需要约定）
-	CurrentPlayers string // 当前玩家人数（不含主持人）
+	HostId         string // 主持人用户ID
+	HostNickname   string // 主持人昵称
+	MaxPlayers     string // 最大玩家人数
+	CurrentPlayers string // 当前玩家人数
 	HasPassword    string // 是否有密码：0无 1有
-	RoomPassword   string // 房间密码（建议存加密/哈希后的密码）
-	IsPrivate      string // 是否私密房：0公开 1私密
-	Status         string // 房间状态：0未开始 1进行中 2已结束 3已关闭
-	SystemName     string // 规则系统：如 COC、DND5E 等
+	RoomPassword   string // 房间密码
+	IsPrivate      string // 是否私密：0公开 1私密
+	Status         string // 状态：0未开始 1进行中 2已结束 3已关闭
+	SystemName     string // 规则系统
 	ScenarioName   string // 模组/剧本名称
-	Description    string // 房间简介/招募说明
-	CreatedAt      string // 房间创建时间
+	Description    string // 房间简介
+	CreatedAt      string // 创建时间
 	StartedAt      string // 开团时间
 	EndedAt        string // 结束时间
-	UpdatedAt      string // 信息最近更新时间
+	UpdatedAt      string // 更新时间
 }
 
 // trpgRoomColumns holds the columns for the table trpg_room.

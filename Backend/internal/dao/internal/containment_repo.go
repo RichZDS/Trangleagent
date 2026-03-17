@@ -21,10 +21,10 @@ type ContainmentRepoDao struct {
 
 // ContainmentRepoColumns defines and stores column names for the table containment_repo.
 type ContainmentRepoColumns struct {
-	Id          string // auto-increment primary key
-	AnomalyName string // name of the anomaly (异常体的名字)
-	AgentName   string // agent (特工)
-	RepoName    string // containment repository name or code (收容库)
+	Id          string // 主键
+	AnomalyName string // 异常体名称
+	AgentName   string // 特工名称
+	RepoName    string // 收容库名称/代码
 	Department  string // 部门
 }
 

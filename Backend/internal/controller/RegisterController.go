@@ -6,6 +6,7 @@ import (
 	"TrangleAgent/internal/controller/forum"
 	"TrangleAgent/internal/controller/login"
 	"TrangleAgent/internal/controller/room"
+	"TrangleAgent/internal/controller/upload"
 	"TrangleAgent/internal/controller/user"
 	"TrangleAgent/internal/middleware"
 
@@ -31,7 +32,7 @@ func RegisterControllers(group *ghttp.RouterGroup) {
 			containment.NewV1(),
 			room.NewV1(),
 			forum.NewV1(),
-			
 		)
+		g.POST("/upload/image", upload.UploadImage)
 	})
 }

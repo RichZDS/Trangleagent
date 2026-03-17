@@ -17,6 +17,9 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import Navbar from './Navbar.vue'
+import { useTheme } from '../composables/useTheme'
+
+useTheme() // 初始化主题，确保 data-theme 生效
 
 const bgCanvas = ref(null)
 let ctx = null
@@ -57,7 +60,7 @@ const animate = () => {
     if (p.y < 0) p.y = bgCanvas.value.height
     if (p.y > bgCanvas.value.height) p.y = 0
     
-    ctx.fillStyle = `rgba(213, 0, 0, ${p.alpha})`
+    ctx.fillStyle = `rgba(220, 38, 38, ${p.alpha})`
     ctx.beginPath()
     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
     ctx.fill()
@@ -72,7 +75,7 @@ const animate = () => {
       const distance = Math.sqrt(dx * dx + dy * dy)
       
       if (distance < 150) {
-        ctx.strokeStyle = `rgba(213, 0, 0, ${(1 - distance / 150) * 0.1})`
+        ctx.strokeStyle = `rgba(220, 38, 38, ${(1 - distance / 150) * 0.1})`
         ctx.beginPath()
         ctx.moveTo(particles[i].x, particles[i].y)
         ctx.lineTo(particles[j].x, particles[j].y)
@@ -115,7 +118,7 @@ onBeforeUnmount(() => {
   height: 100%;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 50%, #111827 0%, #0b1120 100%);
+  background: radial-gradient(circle at 50% 50%, var(--ta-bg-secondary) 0%, var(--ta-bg) 100%);
 }
 
 .particle-canvas {

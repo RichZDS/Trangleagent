@@ -21,12 +21,12 @@ type ForumSectionsDao struct {
 
 // ForumSectionsColumns defines and stores column names for the table forum_sections.
 type ForumSectionsColumns struct {
-	Id           string // 频道/分区ID（主键）
+	Id           string // 频道ID
 	Name         string // 频道名称
 	Description  string // 频道简介
 	Icon         string // 频道图标URL
-	Status       string // 状态：normal=正常 hidden=隐藏 deleted=删除
-	DisplayOrder string // 排序值（越大越靠前）
+	Status       string // 状态：normal/hidden/deleted
+	DisplayOrder string // 排序值
 	CreatedAt    string // 创建时间
 	UpdatedAt    string // 更新时间
 }

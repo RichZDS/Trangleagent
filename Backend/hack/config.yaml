@@ -1,8 +1,9 @@
 gfcli:
   gen:
     dao:
-      - link: "mysql:root:123456@tcp(127.0.0.1:3306)/trangleagent"
-        table: "forum_sections,forum_posts,forum_comments,forum_boards,department,containment_repo,users,login_field,trpg_room,role_cards,trpg_room_member"
+      # 请将密码改为你本机 MySQL root 的实际密码（无密码则用 root:@tcp...）
+      - link: "mysql:root:12345678@tcp(127.0.0.1:3306)/trangleagent"
+        table: "forum_sections,forum_posts,forum_comments,forum_boards,department,containment_repo,users,trpg_room,role_cards,trpg_room_member"
         descriptionTag: true
         jsonCase: "CamelLower" # 生成json字段时，字段名使用驼峰命名
   docker:

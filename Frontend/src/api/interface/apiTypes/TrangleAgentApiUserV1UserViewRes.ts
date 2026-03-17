@@ -23,4 +23,12 @@ export interface TrangleAgentApiUserV1UserViewRes {
     abnormalRole?: string;
     /** 职位 */
     jobTitle?: string;
+    /** 当前选中的角色卡ID */
+    activeRoleId?: number;
+    /** 经验值 */
+    exp?: number;
+    /** 等级 */
+    level?: number;
+    /** 上次签到时间 */
+    lastCheckinAt?: string;
 }

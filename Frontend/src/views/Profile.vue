@@ -40,6 +40,28 @@
               </div>
               <h2 class="user-name">{{ userInfo.nickname || userInfo.account || '未设置' }}</h2>
               <p class="user-account">ID: {{ userInfo.account || '—' }}</p>
+              <!-- 经验条 -->
+              <div class="exp-bar-section">
+                <div class="exp-bar-header">
+                  <span class="exp-level">Lv.{{ userInfo.level || 1 }}</span>
+                  <span class="exp-text">{{ userInfo.exp || 0 }} EXP</span>
+                </div>
+                <div class="exp-bar-track">
+                  <div class="exp-bar-fill" :style="{ width: expBarPercent + '%' }"></div>
+                </div>
+                <div class="exp-bar-hint">距离下一级还需 {{ expToNextLevel }} EXP（每级需 100 EXP）</div>
+                <a-button
+                  type="primary"
+                  size="small"
+                  class="checkin-btn"
+                  :loading="checkinLoading"
+                  :disabled="checkedInToday"
+                  @click="handleCheckin"
+                >
+                  <template #icon><CalendarOutlined /></template>
+                  {{ checkedInToday ? '今日已签到' : '签到 +20 EXP' }}
+                </a-button>
+              </div>
             </div>
 
             <div class="info-section">
@@ -160,17 +182,19 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
-import { EditOutlined, SaveOutlined } from '@ant-design/icons-vue'
+import { EditOutlined, SaveOutlined, CalendarOutlined } from '@ant-design/icons-vue'
 import { getApiUserView } from '../api/controller/YongHu/getApiUserView'
 import { putApiUserUpdate } from '../api/controller/YongHu/putApiUserUpdate'
+import { postApiUserCheckin } from '../api/controller/YongHu/postApiUserCheckin'
 import dayjs from 'dayjs'
 
 const router = useRouter()
 const loading = ref(false)
 const saving = ref(false)
+const checkinLoading = ref(false)
 const isEditing = ref(false)
 const userInfo = ref({})
 const form = reactive({
@@ -182,6 +206,45 @@ const form = reactive({
   abnormalRole: '',
   jobTitle: ''
 })
+
+// 经验条：每 100 EXP 升 1 级
+const expBarPercent = computed(() => {
+  const exp = userInfo.value?.exp || 0
+  return (exp % 100)
+})
+
+const expToNextLevel = computed(() => {
+  const exp = userInfo.value?.exp || 0
+  return 100 - (exp % 100)
+})
+
+// 今日是否已签到
+const checkedInToday = computed(() => {
+  const last = userInfo.value?.lastCheckinAt
+  if (!last) return false
+  const lastDate = new Date(last).toDateString()
+  const today = new Date().toDateString()
+  return lastDate === today
+})
+
+const handleCheckin = async () => {
+  const userId = userInfo.value?.id || Number(localStorage.getItem('ta_user_id'))
+  if (!userId) {
+    message.error('请先登录')
+    return
+  }
+  checkinLoading.value = true
+  try {
+    const res = await postApiUserCheckin({ userId })
+    const data = res?.data || res || {}
+    userInfo.value = { ...userInfo.value, exp: data.exp, level: data.level, lastCheckinAt: new Date().toISOString() }
+    message.success(data.message || '签到成功，获得 20 经验')
+  } catch (err) {
+    message.error(err.message || '签到失败')
+  } finally {
+    checkinLoading.value = false
+  }
+}
 
 const fetchUserInfo = async () => {
   loading.value = true
@@ -402,7 +465,71 @@ onMounted(() => {
   color: #64748b;
   font-size: 14px;
   margin: 0;
+}
+
+.exp-bar-section {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.exp-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.exp-level {
+  color: #f97316;
+  font-weight: 600;
   font-family: 'Roboto Mono', monospace;
+}
+
+.exp-text {
+  color: #94a3b8;
+}
+
+.exp-bar-track {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.exp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f97316, #ea580c);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.exp-bar-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #64748b;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.checkin-btn {
+  margin-top: 12px;
+  width: 100%;
+  background: linear-gradient(120deg, #22c55e, #15803d) !important;
+  border: none !important;
+  font-weight: 600;
+}
+
+.checkin-btn:hover:not(:disabled) {
+  background: linear-gradient(120deg, #4ade80, #22c55e) !important;
+}
+
+.checkin-btn:disabled {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #64748b !important;
+  cursor: not-allowed;
 }
 
 .info-section {

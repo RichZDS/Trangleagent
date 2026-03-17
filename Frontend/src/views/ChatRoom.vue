@@ -14,7 +14,10 @@
         :key="index"
         :class="['message-item', msg.userId === currentUserId ? 'message-self' : 'message-other']"
       >
-        <div class="message-sender">{{ msg.userId }}</div>
+        <div class="message-sender">
+          {{ msg.roleName || msg.nickname || msg.userId }}
+          <span v-if="msg.type === 'join' || msg.type === 'leave'" class="message-type-tag">{{ msg.type === 'join' ? '进入' : '离开' }}</span>
+        </div>
         <div class="message-content">{{ msg.message }}</div>
       </div>
     </div>
@@ -37,34 +40,49 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
+import { getChatWsUrl } from '../config/ws'
 
 const route = useRoute()
 const router = useRouter()
 
 const roomId = ref(route.params.roomId || route.query.roomId || '未知房间')
-// 为了简单测试，从 localStorage 拿 ID，如果为空可以生成随机的
-const userStr = localStorage.getItem('ta_user')
-const currentUserId = ref(userStr ? JSON.parse(userStr).id : 'User_' + Math.floor(Math.random() * 1000))
+const currentUserId = ref('')
+const currentNickname = ref('')
+const currentRoleName = ref('')
 
 const messages = ref([])
 const inputText = ref('')
 const messagesContainer = ref(null)
 
 let ws = null
+let userLeftIntentional = false
 const wsConnected = ref(false)
+const reconnectAttempts = ref(0)
+const maxReconnectAttempts = 5
+
+function buildWsUrl() {
+  const base = getChatWsUrl()
+  const token = localStorage.getItem('ta_token')
+  if (token) {
+    return `${base}?token=${encodeURIComponent(token)}`
+  }
+  return base
+}
 
 const connectWebSocket = () => {
-  const wsUrl = `ws://localhost:8888/ws/chat`
+  const wsUrl = buildWsUrl()
   ws = new WebSocket(wsUrl)
 
   ws.onopen = () => {
     wsConnected.value = true
+    reconnectAttempts.value = 0
     message.success('已连接至通讯网络')
-    
-    // 发送加入房间消息
+
     ws.send(JSON.stringify({
       roomId: roomId.value,
       userId: String(currentUserId.value),
+      nickname: currentNickname.value,
+      roleName: currentRoleName.value,
       message: '进入了频道',
       type: 'join'
     }))
@@ -84,7 +102,13 @@ const connectWebSocket = () => {
 
   ws.onclose = () => {
     wsConnected.value = false
-    message.warning('通讯网络已断开')
+    if (!userLeftIntentional && reconnectAttempts.value < maxReconnectAttempts) {
+      reconnectAttempts.value++
+      message.warning(`通讯断开，3秒后重连 (${reconnectAttempts.value}/${maxReconnectAttempts})`)
+      setTimeout(connectWebSocket, 3000)
+    } else if (!userLeftIntentional) {
+      message.warning('通讯网络已断开')
+    }
   }
 
   ws.onerror = (error) => {
@@ -99,6 +123,8 @@ const sendMessage = () => {
   const msgPayload = {
     roomId: String(roomId.value),
     userId: String(currentUserId.value),
+    nickname: currentNickname.value,
+    roleName: currentRoleName.value,
     message: inputText.value,
     type: 'chat'
   }
@@ -108,10 +134,13 @@ const sendMessage = () => {
 }
 
 const handleLeave = () => {
+  userLeftIntentional = true
   if (ws && wsConnected.value) {
     ws.send(JSON.stringify({
       roomId: String(roomId.value),
       userId: String(currentUserId.value),
+      nickname: currentNickname.value,
+      roleName: currentRoleName.value,
       message: '离开了频道',
       type: 'leave'
     }))
@@ -128,16 +157,28 @@ const scrollToBottom = () => {
   })
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (!roomId.value || roomId.value === '未知房间') {
     message.error('无效的房间号')
     router.push('/rooms')
     return
   }
+
+  const userId = localStorage.getItem('ta_user_id')
+  const account = localStorage.getItem('ta_account')
+  if (userId) {
+    currentUserId.value = userId
+  } else {
+    currentUserId.value = 'User_' + Math.floor(Math.random() * 10000)
+  }
+  currentNickname.value = account || ''
+  currentRoleName.value = localStorage.getItem('ta_active_role_name') || ''
+
   connectWebSocket()
 })
 
 onUnmounted(() => {
+  userLeftIntentional = true
   if (ws) {
     ws.close()
   }
@@ -206,6 +247,17 @@ onUnmounted(() => {
   font-size: 12px;
   color: #94a3b8;
   margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.message-type-tag {
+  font-size: 10px;
+  color: #64748b;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .message-content {

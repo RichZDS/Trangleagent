@@ -113,6 +113,9 @@ func (s *sForumPosts) View(ctx context.Context, req *v1.ForumPostsViewReq) (res 
 	if err != nil {
 		return nil, gerror.Wrap(err, "查询帖子失败")
 	}
+	// 浏览量 +1
+	_, _ = dao.ForumPosts.Ctx(ctx).Where(dao.ForumPosts.Columns().Id, req.Id).Increment(dao.ForumPosts.Columns().ViewCount, 1)
+	post.ViewCount++
 	// 查询用户名称
 	type User struct {
 		Name string `json:"name" orm:"nickname" description:"用户昵称"`

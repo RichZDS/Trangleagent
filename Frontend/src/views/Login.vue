@@ -294,9 +294,12 @@ const pickEmail = () =>
     ? form.emailRegister.email
     : form.emailLogin.email
 
-const saveToken = (token) => {
+const saveToken = (token, userType) => {
   if (token) {
     localStorage.setItem('ta_token', token)
+  }
+  if (userType) {
+    localStorage.setItem('ta_user_type', userType)
   }
 }
 
@@ -323,7 +326,7 @@ const handleSubmit = async (type) => {
           return
         }
         const data = res.data || res || {}
-        saveToken(data.token)
+        saveToken(data.token, data.userType)
         if (data.account) {
           localStorage.setItem('ta_account', data.account)
         }
@@ -341,6 +344,7 @@ const handleSubmit = async (type) => {
         }
         message.success('注册成功，请登录')
         activeKey.value = 'login'
+        loading.value = false
       } else if (type === 'emailLogin') {
         const res = await postApiLoginEmail(form.emailLogin)
         if (res.code && res.code !== 0) {
@@ -349,7 +353,7 @@ const handleSubmit = async (type) => {
           return
         }
         const data = res.data || res || {}
-        saveToken(data.token)
+        saveToken(data.token, data.userType)
         if (data.account || data.email) {
           localStorage.setItem('ta_account', data.account || data.email)
         }
@@ -364,6 +368,7 @@ const handleSubmit = async (type) => {
         }
         message.success('邮箱注册成功，请登录')
         activeKey.value = 'emailLogin'
+        loading.value = false
       }
     } catch (err) {
       message.error(err.message || '请求失败')

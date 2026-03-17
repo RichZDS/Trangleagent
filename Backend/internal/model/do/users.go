@@ -18,14 +18,16 @@ type Users struct {
 	Nickname     any         // 昵称
 	Gender       any         // 性别：0未知 1男 2女
 	BirthDate    *gtime.Time // 生日
-	UserType     any         // 用户类型：1 user 2 admin
+	UserType     any         // 用户类型：user/admin
 	CreatedAt    *gtime.Time // 创建时间
 	UpdatedAt    *gtime.Time // 更新时间
 	RealityRole  any         // 现实身份/角色
 	AbnormalRole any         // 异常身份/角色
 	JobTitle     any         // 职位
-	Email        any         //
-	RedTrace     any         // 红轨
-	YellowTrace  any         // 黄轨
-	BlueTrace    any         // 蓝轨
+	Email        any         // 邮箱
+	VipStartAt   *gtime.Time // VIP开始时间
+	VipEndAt     *gtime.Time // VIP结束时间
+	ActiveRoleId any         // 当前选中的角色卡ID
+	Exp          any         // 经验值（经验条）
+	Level        any         // 等级（1+exp/100）
 }

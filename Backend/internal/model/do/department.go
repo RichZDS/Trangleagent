@@ -13,12 +13,12 @@ import (
 type Department struct {
 	g.Meta        `orm:"table:department, do:true"`
 	Id            any         // 自增主键
-	UserId        any         // 所属用户ID（对应 users.id）
+	UserId        any         // 所属用户ID
 	BranchName    any         // 分部名称
-	TerminalCount any         // 分部散逸端的数量
-	Weather       any         // 分部当前天气/气候描述
+	TerminalCount any         // 分部散逸端数量
+	Weather       any         // 分部天气/气候
 	ManagerName   any         // 分部经理名称
+	Location      any         // 地址
 	CreatedAt     *gtime.Time // 创建时间
 	UpdatedAt     *gtime.Time // 更新时间
-	Location      any         // 地址
 }

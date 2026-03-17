@@ -26,6 +26,14 @@ func (c *ControllerV1) UserDelete(ctx context.Context, req *v1.UserDeleteReq) (r
 	return service.User().UserDelete(ctx, req)
 }
 
+func (c *ControllerV1) ExpAdd(ctx context.Context, req *v1.ExpAddReq) (res *v1.ExpAddRes, err error) {
+	return service.User().ExpAdd(ctx, req)
+}
+
+func (c *ControllerV1) CheckIn(ctx context.Context, req *v1.CheckInReq) (res *v1.CheckInRes, err error) {
+	return service.User().CheckIn(ctx, req)
+}
+
 // Trace 相关方法
 func (c *ControllerV1) TraceList(ctx context.Context, req *v1.TraceListReq) (res *v1.TraceListRes, err error) {
 	return service.Trace().TraceList(ctx, req)

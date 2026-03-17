@@ -42,3 +42,30 @@ type UserDeleteReq struct {
 }
 type UserDeleteRes struct {
 }
+
+// ExpAddReq 增加经验请求
+type ExpAddReq struct {
+	g.Meta `path:"/user/exp/add" method:"post" tags:"用户" summary:"增加经验"`
+	UserId uint64 `json:"userId" v:"required" description:"用户ID"`
+	Amount uint   `json:"amount" v:"required|min:1" description:"增加的经验值"`
+}
+
+// ExpAddRes 增加经验响应
+type ExpAddRes struct {
+	Exp   uint `json:"exp"   description:"当前经验值"`
+	Level uint `json:"level" description:"当前等级"`
+}
+
+// CheckInReq 签到请求（每日一次，+20 经验）
+type CheckInReq struct {
+	g.Meta `path:"/user/checkin" method:"post" tags:"用户" summary:"每日签到"`
+	UserId uint64 `json:"userId" v:"required" description:"用户ID"`
+}
+
+// CheckInRes 签到响应
+type CheckInRes struct {
+	Exp       uint   `json:"exp"       description:"当前经验值"`
+	Level     uint   `json:"level"     description:"当前等级"`
+	AddedExp  uint   `json:"addedExp"  description:"本次获得经验"`
+	Message   string `json:"message"   description:"提示信息"`
+}

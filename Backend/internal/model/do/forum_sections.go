@@ -12,12 +12,12 @@ import (
 // ForumSections is the golang structure of table forum_sections for DAO operations like Where/Data.
 type ForumSections struct {
 	g.Meta       `orm:"table:forum_sections, do:true"`
-	Id           any         // 频道/分区ID（主键）
+	Id           any         // 频道ID
 	Name         any         // 频道名称
 	Description  any         // 频道简介
 	Icon         any         // 频道图标URL
-	Status       any         // 状态：normal=正常 hidden=隐藏 deleted=删除
-	DisplayOrder any         // 排序值（越大越靠前）
+	Status       any         // 状态：normal/hidden/deleted
+	DisplayOrder any         // 排序值
 	CreatedAt    *gtime.Time // 创建时间
 	UpdatedAt    *gtime.Time // 更新时间
 }

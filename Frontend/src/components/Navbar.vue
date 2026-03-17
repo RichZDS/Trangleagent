@@ -12,12 +12,21 @@
     <div class="nav-links">
       <router-link to="/main" class="nav-item" active-class="active">主页 // HOME</router-link>
       <router-link to="/rooms" class="nav-item" active-class="active">房间大厅 // LOBBY</router-link>
-      <router-link to="/users" class="nav-item" active-class="active">人员档案 // USERS</router-link>
+      <router-link v-if="isAdmin" to="/users" class="nav-item" active-class="active">人员档案 // USERS</router-link>
       <router-link to="/profile" class="nav-item" active-class="active">个人档案 // PROFILE</router-link>
       <router-link to="/roles" class="nav-item" active-class="active">特工档案 // SETTINGS</router-link>
       <router-link to="/forum" class="nav-item" active-class="active">评论 // FORUM</router-link>
     </div>
     <div class="user-profile">
+      <div class="nav-exp-bar" v-if="userExp !== undefined">
+        <span class="nav-exp-level">Lv.{{ userLevel || 1 }}</span>
+        <div class="nav-exp-track">
+          <div class="nav-exp-fill" :style="{ width: (userExp % 100) + '%' }"></div>
+        </div>
+      </div>
+      <div class="theme-toggle" @click="toggleTheme" :title="theme === 'dark' ? '切换浅色' : '切换深色'">
+        <span class="theme-icon">{{ theme === 'dark' ? '☀' : '🌙' }}</span>
+      </div>
       <div class="user-info" @click="goToProfile">
         <span class="username">{{ username }}</span>
         <div class="avatar">
@@ -35,11 +44,17 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
+import { getApiUserView } from '../api/controller/YongHu/getApiUserView'
+import { useTheme } from '../composables/useTheme'
 
 const router = useRouter()
+const { theme, toggleTheme } = useTheme()
 const username = ref('AGENT')
+const userExp = ref(undefined)
+const userLevel = ref(undefined)
+const isAdmin = ref(localStorage.getItem('ta_user_type') === 'admin')
 
-onMounted(() => {
+onMounted(async () => {
   const token = localStorage.getItem('ta_token')
   if (!token) {
     router.push('/')
@@ -49,6 +64,19 @@ onMounted(() => {
   if (storedAccount) {
     username.value = storedAccount
   }
+  const storedId = localStorage.getItem('ta_user_id')
+  if (storedId) {
+    try {
+      const res = await getApiUserView({ id: Number(storedId) })
+      const data = res.data || res || {}
+      userExp.value = data.exp ?? 0
+      userLevel.value = data.level ?? 1
+      if (data.userType) {
+        localStorage.setItem('ta_user_type', data.userType)
+        isAdmin.value = data.userType === 'admin'
+      }
+    } catch (_) {}
+  }
 })
 
 const goToProfile = () => {
@@ -57,6 +85,7 @@ const goToProfile = () => {
 
 const handleLogout = () => {
   localStorage.removeItem('ta_token')
+  localStorage.removeItem('ta_user_type')
   message.success('已安全登出')
   router.push('/')
 }
@@ -69,8 +98,8 @@ const handleLogout = () => {
   justify-content: space-between;
   height: 64px;
   padding: 0 32px;
-  background: rgba(15, 23, 42, 0.95);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--ta-surface);
+  border-bottom: 1px solid var(--ta-border);
   backdrop-filter: blur(10px);
   position: fixed;
   top: 0;
@@ -156,10 +185,55 @@ const handleLogout = () => {
   background: #d50000;
 }
 
+.theme-toggle {
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: #94a3b8;
+  transition: all 0.2s;
+}
+.theme-toggle:hover {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.08);
+}
+.theme-icon {
+  font-size: 18px;
+}
+
 .user-profile {
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+.nav-exp-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 100px;
+}
+
+.nav-exp-level {
+  font-size: 11px;
+  color: #f97316;
+  font-weight: 600;
+  font-family: 'Roboto Mono', monospace;
+  white-space: nowrap;
+}
+
+.nav-exp-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.nav-exp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f97316, #ea580c);
+  border-radius: 3px;
+  transition: width 0.3s ease;
 }
 
 .user-info {

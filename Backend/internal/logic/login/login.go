@@ -125,8 +125,9 @@ func (s *sLogin) Login(ctx context.Context, loginReq *v1.LoginReq) (res *v1.Logi
 		return nil, gerror.NewCode(gcode.CodeInternalError, "Failed to generate token")
 	}
 	res = &v1.LoginRes{
-		Token:   signedToken,
-		Account: user.Account,
+		Token:    signedToken,
+		Account:  user.Account,
+		UserType: user.UserType,
 	}
 	return
 }
@@ -242,9 +243,14 @@ func (s *sLogin) LoginByEmail(ctx context.Context, req *v1.LoginByEmailReq) (res
 		return nil, gerror.NewCode(gcode.CodeInternalError, "Failed to generate token")
 	}
 
+	userType := user.UserType
+	if userType == "" {
+		userType = "user"
+	}
 	res = &v1.LoginByEmailRes{
-		Token: signedToken,
-		Email: req.Email,
+		Token:    signedToken,
+		Email:    req.Email,
+		UserType: userType,
 	}
 
 	return

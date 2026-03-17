@@ -1,10 +1,59 @@
+:root,
+[data-theme="dark"] {
+  --ta-bg: #0b1120;
+  --ta-bg-secondary: #111827;
+  --ta-surface: rgba(15, 23, 42, 0.6);
+  --ta-surface-hover: rgba(30, 41, 59, 0.8);
+  --ta-text: #e2e8f0;
+  --ta-text-muted: #94a3b8;
+  --ta-text-dim: #64748b;
+  --ta-border: rgba(255, 255, 255, 0.08);
+  --ta-accent: #d50000;
+  --ta-accent-hover: #f43f5e;
+  /* 输入框变量 */
+  --ta-input-bg: rgba(15, 23, 42, 0.6);
+  --ta-input-border: rgba(255, 255, 255, 0.1);
+  --ta-input-hover-border: rgba(255, 255, 255, 0.15);
+  --ta-input-focus-border: rgba(213, 0, 0, 0.5);
+  --ta-input-focus-shadow: rgba(213, 0, 0, 0.15);
+  --ta-overlay: rgba(255, 255, 255, 0.05);
+  --ta-overlay-hover: rgba(255, 255, 255, 0.1);
+  --ta-card-alt: rgba(0, 0, 0, 0.2);
+  --ta-scrollbar-track: rgba(0, 0, 0, 0.1);
+  --ta-scrollbar-thumb: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] {
+  --ta-bg: #f8fafc;
+  --ta-bg-secondary: #f1f5f9;
+  --ta-surface: rgba(255, 255, 255, 0.9);
+  --ta-surface-hover: rgba(241, 245, 249, 0.95);
+  --ta-text: #1e293b;
+  --ta-text-muted: #64748b;
+  --ta-text-dim: #94a3b8;
+  --ta-border: rgba(0, 0, 0, 0.08);
+  --ta-accent: #dc2626;
+  --ta-accent-hover: #ef4444;
+  /* 输入框变量 - 浅色主题 */
+  --ta-input-bg: rgba(255, 255, 255, 0.95);
+  --ta-input-border: rgba(0, 0, 0, 0.12);
+  --ta-input-hover-border: rgba(0, 0, 0, 0.2);
+  --ta-input-focus-border: rgba(220, 38, 38, 0.5);
+  --ta-input-focus-shadow: rgba(220, 38, 38, 0.15);
+  --ta-overlay: rgba(0, 0, 0, 0.05);
+  --ta-overlay-hover: rgba(0, 0, 0, 0.08);
+  --ta-card-alt: rgba(0, 0, 0, 0.04);
+  --ta-scrollbar-track: rgba(0, 0, 0, 0.06);
+  --ta-scrollbar-thumb: rgba(0, 0, 0, 0.15);
+}
+
 :root {
   font-family: 'Roboto Mono', 'Noto Sans SC', 'Microsoft YaHei', system-ui,
     -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   line-height: 1.6;
   font-weight: 400;
-  color: #e2e8f0;
-  background-color: #0b1120;
+  color: var(--ta-text);
+  background-color: var(--ta-bg);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -17,7 +66,8 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #0b1120;
+  background-color: var(--ta-bg);
+  transition: background-color 0.3s, color 0.3s;
 }
 
 a {
@@ -27,4 +77,39 @@ a {
 
 #app {
   min-height: 100vh;
+}
+
+/* 全局输入框主题适配 */
+[data-theme="light"] .ant-input,
+[data-theme="light"] .ant-input-affix-wrapper,
+[data-theme="light"] .ant-input-password input,
+[data-theme="light"] .ant-input-search .ant-input,
+[data-theme="light"] .ant-select-selector,
+[data-theme="light"] .ant-input-number,
+[data-theme="light"] .ant-picker {
+  background-color: var(--ta-input-bg) !important;
+  border-color: var(--ta-input-border) !important;
+  color: var(--ta-text) !important;
+}
+
+[data-theme="light"] .ant-input::placeholder,
+[data-theme="light"] .ant-input-password input::placeholder {
+  color: var(--ta-text-dim) !important;
+}
+
+[data-theme="light"] .ant-input:hover,
+[data-theme="light"] .ant-input-affix-wrapper:hover,
+[data-theme="light"] .ant-input-number:hover,
+[data-theme="light"] .ant-select-selector:hover,
+[data-theme="light"] .ant-picker:hover {
+  border-color: var(--ta-input-hover-border) !important;
+}
+
+[data-theme="light"] .ant-input:focus,
+[data-theme="light"] .ant-input-affix-wrapper-focused,
+[data-theme="light"] .ant-input-number-focused,
+[data-theme="light"] .ant-select-focused .ant-select-selector,
+[data-theme="light"] .ant-picker-focused {
+  border-color: var(--ta-input-focus-border) !important;
+  box-shadow: 0 0 0 2px var(--ta-input-focus-shadow) !important;
 }

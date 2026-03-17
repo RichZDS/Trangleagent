@@ -6,6 +6,10 @@ const proxy = {
     target: 'http://localhost:8888',
     changeOrigin: true,
   },
+  '/ws': {
+    target: 'http://localhost:8888',
+    ws: true,
+  },
 }
 
 export default defineConfig({

@@ -16,6 +16,8 @@ type (
 		UserView(ctx context.Context, req *v1.UserViewReq) (res *v1.UserViewRes, err error)
 		UserUpdate(ctx context.Context, req *v1.UserUpdateReq) (res *v1.UserUpdateRes, err error)
 		UserDelete(ctx context.Context, req *v1.UserDeleteReq) (res *v1.UserDeleteRes, err error)
+		ExpAdd(ctx context.Context, req *v1.ExpAddReq) (res *v1.ExpAddRes, err error)
+		CheckIn(ctx context.Context, req *v1.CheckInReq) (res *v1.CheckInRes, err error)
 		// RoleCreate 创建角色
 		RoleCreate(ctx context.Context, req *v1.RoleCreateReq) (res *v1.RoleCreateRes, err error)
 		// RoleUpdate 更新角色

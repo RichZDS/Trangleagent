@@ -21,14 +21,14 @@ type ForumCommentsDao struct {
 
 // ForumCommentsColumns defines and stores column names for the table forum_comments.
 type ForumCommentsColumns struct {
-	Id            string // 评论ID（主键）
-	PostId        string // 所属帖子ID（关联 forum_posts.id，无外键）
-	UserId        string // 评论发布者ID（关联 users.id，无外键）
-	ParentId      string // 父评论ID：NULL=一级评论；非NULL=二级评论（指向一级评论ID，无外键）
-	ReplyToUserId string // 回复的用户ID（可选，用于展示“回复@xxx”，无外键）
-	Content       string // 评论内容（支持emoji）
-	Status        string // 状态：1=正常 2=软删 3=审核中 4=驳回
-	LikeCount     string // 点赞数（冗余）
+	Id            string // 评论ID
+	PostId        string // 所属帖子ID
+	UserId        string // 评论用户ID
+	ParentId      string // 父评论ID：0=一级评论
+	ReplyToUserId string // 回复的用户ID
+	Content       string // 评论内容
+	Status        string // 状态：normal/deleted/audit/reject
+	LikeCount     string // 点赞数
 	CreatedAt     string // 创建时间
 	UpdatedAt     string // 更新时间
 	DeletedAt     string // 软删除时间

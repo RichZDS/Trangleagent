@@ -29,7 +29,7 @@ var (
 				}
 
 				r.Response.CORS(ghttp.CORSOptions{
-					AllowOrigin:      "http://localhost:3000,http://localhost:8080",
+					AllowOrigin:      "http://localhost:3000,http://localhost:8080,http://localhost:5173",
 					AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
 					AllowHeaders:     "Content-Type,Authorization,X-Requested-With",
 					AllowCredentials: "true",

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
@@ -14,10 +15,13 @@ import (
 )
 
 type ChatMessage struct {
-	RoomId  string `json:"roomId"`
-	UserId  string `json:"userId"`
-	Message string `json:"message"`
-	Type    string `json:"type"`
+	RoomId   string `json:"roomId"`
+	UserId   string `json:"userId"`
+	Nickname string `json:"nickname,omitempty"`
+	RoleName string `json:"roleName,omitempty"`
+	Message  string `json:"message"`
+	Type     string `json:"type"`
+	Time     int64  `json:"time,omitempty"`
 }
 
 var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
@@ -169,6 +173,10 @@ func HandleChatConnections(r *ghttp.Request) {
 				}
 			}
 			mutex.Unlock()
+		}
+
+		if msg.Time == 0 {
+			msg.Time = time.Now().UnixMilli()
 		}
 
 		// 发布到 RabbitMQ 或降级为本地广播

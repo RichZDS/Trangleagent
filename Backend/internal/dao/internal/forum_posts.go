@@ -21,21 +21,21 @@ type ForumPostsDao struct {
 
 // ForumPostsColumns defines and stores column names for the table forum_posts.
 type ForumPostsColumns struct {
-	Id            string // 帖子ID（主键）
-	BoardId       string // 所属版块ID（关联 forum_boards.id，无外键）
-	UserId        string // 发帖用户ID（关联 users.id，无外键）
+	Id            string // 帖子ID
+	BoardId       string // 所属版块ID
+	UserId        string // 发帖用户ID
 	Title         string // 帖子标题
-	Content       string // 帖子正文（支持富文本/emoji）
-	CoverImage    string // 帖子封面图URL
-	Status        string // 状态：normal=正常 deleted=软删 audit=审核中 reject=驳回
+	Content       string // 帖子正文
+	CoverImage    string // 封面图URL
+	Status        string // 状态：normal/deleted/audit/reject
 	IsPinned      string // 是否置顶：0否 1是
 	IsEssence     string // 是否精华：0否 1是
-	ViewCount     string // 浏览量（冗余）
-	LikeCount     string // 点赞数（冗余）
-	CommentCount  string // 评论数（冗余）
-	CollectCount  string // 收藏数（冗余，可选）
-	LastCommentId string // 最后一条评论ID（冗余，可选）
-	LastCommentAt string // 最后评论时间（冗余，可选）
+	ViewCount     string // 浏览量
+	LikeCount     string // 点赞数
+	CommentCount  string // 评论数
+	CollectCount  string // 收藏数
+	LastCommentId string // 最后评论ID
+	LastCommentAt string // 最后评论时间
 	CreatedAt     string // 发帖时间
 	UpdatedAt     string // 更新时间
 	DeletedAt     string // 软删除时间

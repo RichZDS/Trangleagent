@@ -27,17 +27,19 @@ type UsersColumns struct {
 	Nickname     string // 昵称
 	Gender       string // 性别：0未知 1男 2女
 	BirthDate    string // 生日
-	UserType     string // 用户类型：1 user 2 admin
+	UserType     string // 用户类型：user/admin
 	CreatedAt    string // 创建时间
 	UpdatedAt    string // 更新时间
 	RealityRole  string // 现实身份/角色
 	AbnormalRole string // 异常身份/角色
 	JobTitle     string // 职位
-	Email        string //
-	RedTrace     string // 红轨
-	YellowTrace  string // 黄轨
-	BlueTrace    string // 蓝轨
+	Email        string // 邮箱
+	VipStartAt   string // VIP开始时间
+	VipEndAt     string // VIP结束时间
 	ActiveRoleId string // 当前选中的角色卡ID
+	Exp           string // 经验值（经验条）
+	Level         string // 等级（1+exp/100）
+	LastCheckinAt string // 上次签到时间
 }
 
 // usersColumns holds the columns for the table users.
@@ -55,10 +57,12 @@ var usersColumns = UsersColumns{
 	AbnormalRole: "abnormal_role",
 	JobTitle:     "job_title",
 	Email:        "email",
-	RedTrace:     "red_trace",
-	YellowTrace:  "yellow_trace",
-	BlueTrace:    "blue_trace",
+	VipStartAt:   "vip_start_at",
+	VipEndAt:     "vip_end_at",
 	ActiveRoleId: "active_role_id",
+	Exp:           "exp",
+	Level:         "level",
+	LastCheckinAt: "last_checkin_at",
 }
 
 // NewUsersDao creates and returns a new DAO object for table data access.

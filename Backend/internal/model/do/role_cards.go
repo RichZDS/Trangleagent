@@ -26,15 +26,15 @@ type RoleCards struct {
 	AgentName      any         // 特工名字
 	CodeName       any         // 代号
 	Gender         any         // 性别
-	QaMeticulous   any         // Meticulousness (0-100, QA)
-	QaDeception    any         // Deception (0-100, QA)
-	QaVigor        any         // Vigor / Drive (0-100, QA)
-	QaEmpathy      any         // Empathy (0-100, QA)
-	QaInitiative   any         // Initiative (0-100, QA)
-	QaResilience   any         // Resilience / Persistence (0-100, QA)
-	QaPresence     any         // Presence / Charisma (0-100, QA)
-	QaProfessional any         // Professionalism (0-100, QA)
-	QaDiscretion   any         // Discretion / Low profile (0-100, QA)
+	QaMeticulous   any         // QA Meticulousness (0-100)
+	QaDeception    any         // QA Deception (0-100)
+	QaVigor        any         // QA Vigor (0-100)
+	QaEmpathy      any         // QA Empathy (0-100)
+	QaInitiative   any         // QA Initiative (0-100)
+	QaResilience   any         // QA Resilience (0-100)
+	QaPresence     any         // QA Presence (0-100)
+	QaProfessional any         // QA Professionalism (0-100)
+	QaDiscretion   any         // QA Discretion (0-100)
 	CreatedAt      *gtime.Time // 创建时间
 	UpdatedAt      *gtime.Time // 更新时间
 }

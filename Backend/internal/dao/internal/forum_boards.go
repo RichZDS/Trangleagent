@@ -21,17 +21,17 @@ type ForumBoardsDao struct {
 
 // ForumBoardsColumns defines and stores column names for the table forum_boards.
 type ForumBoardsColumns struct {
-	Id             string // 版块ID（主键）
-	SectionId      string // 所属频道ID（关联 forum_sections.id，无外键；可为空=不分区）
+	Id             string // 版块ID
+	SectionId      string // 所属频道ID
 	Name           string // 版块名称
 	Description    string // 版块简介
 	CoverImage     string // 版块封面图URL
-	Status         string // 状态：normal=正常 hidden=隐藏 deleted=删除
-	DisplayOrder   string // 排序值（越大越靠前）
-	PostCount      string // 帖子总数（冗余）
-	TodayPostCount string // 今日发帖数（冗余，可选）
-	LastPostId     string // 最后一篇帖子ID（冗余，可选）
-	LastPostAt     string // 最后发帖时间（冗余，可选）
+	Status         string // 状态：normal/hidden/deleted
+	DisplayOrder   string // 排序值
+	PostCount      string // 帖子总数
+	TodayPostCount string // 今日发帖数
+	LastPostId     string // 最后一篇帖子ID
+	LastPostAt     string // 最后发帖时间
 	CreatedAt      string // 创建时间
 	UpdatedAt      string // 更新时间
 }

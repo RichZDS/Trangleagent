@@ -22,14 +22,14 @@ type DepartmentDao struct {
 // DepartmentColumns defines and stores column names for the table department.
 type DepartmentColumns struct {
 	Id            string // 自增主键
-	UserId        string // 所属用户ID（对应 users.id）
+	UserId        string // 所属用户ID
 	BranchName    string // 分部名称
-	TerminalCount string // 分部散逸端的数量
-	Weather       string // 分部当前天气/气候描述
+	TerminalCount string // 分部散逸端数量
+	Weather       string // 分部天气/气候
 	ManagerName   string // 分部经理名称
+	Location      string // 地址
 	CreatedAt     string // 创建时间
 	UpdatedAt     string // 更新时间
-	Location      string // 地址
 }
 
 // departmentColumns holds the columns for the table department.
@@ -40,9 +40,9 @@ var departmentColumns = DepartmentColumns{
 	TerminalCount: "terminal_count",
 	Weather:       "weather",
 	ManagerName:   "manager_name",
+	Location:      "location",
 	CreatedAt:     "created_at",
 	UpdatedAt:     "updated_at",
-	Location:      "location",
 }
 
 // NewDepartmentDao creates and returns a new DAO object for table data access.

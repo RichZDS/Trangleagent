@@ -491,6 +491,10 @@ const handleJoin = async () => {
       userId: joinUserId.value,
       roleCardId: selectedRoleId.value
     })
+    const role = joinRoles.value.find(r => r.id === selectedRoleId.value)
+    if (role) {
+      localStorage.setItem('ta_active_role_name', role.agentName || role.codeName || '')
+    }
     message.success(`已加入房间: ${joinRoom.value.name || joinRoom.value.roomName}`)
     joinModalVisible.value = false
     router.push({ name: 'chat-room', params: { roomId: String(joinRoom.value.id) } })

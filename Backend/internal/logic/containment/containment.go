@@ -26,9 +26,6 @@ func init() {
 func (s *sContainment) ContainmentRepoList(ctx context.Context, req *v1.ContainmentRepoListReq) (res *v1.ContainmentRepoListRes, err error) {
 	m := dao.ContainmentRepo.Ctx(ctx)
 
-	if req.TerminalId != 0 {
-		m = m.Where(dao.ContainmentRepo.Columns().TerminalId, req.TerminalId)
-	}
 	if req.AgentName != "" {
 		m = m.Where(dao.ContainmentRepo.Columns().AgentName, req.AgentName)
 	}
@@ -85,20 +82,17 @@ func (s *sContainment) ContainmentRepoView(ctx context.Context, req *v1.Containm
 func (s *sContainment) ContainmentRepoUpdate(ctx context.Context, req *v1.ContainmentRepoUpdateReq) (res *v1.ContainmentRepoUpdateRes, err error) {
 	res = &v1.ContainmentRepoUpdateRes{}
 
-	data := &model.ContainmentRepo{
-		Id:          req.Id,
-		TerminalId:  req.TerminalId,
-		Abnormal:    0, // Abnormal 可根据业务补充计算或从 req 取值
-		AnomalyName: req.AnomalyName,
-		AgentName:   req.AgentName,
-		RepoName:    req.RepoName,
+	data := map[string]interface{}{
+		"anomaly_name": req.AnomalyName,
+		"agent_name":   req.AgentName,
+		"repo_name":    req.RepoName,
+		"department":   req.TerminalId, // API TerminalId 映射到表字段 department
 	}
 
 	if req.Id > 0 {
 		// 更新
 		if _, err = dao.ContainmentRepo.Ctx(ctx).
 			Data(data).
-			FieldsEx(dao.ContainmentRepo.Columns().Id).
 			Where(dao.ContainmentRepo.Columns().Id, req.Id).
 			Update(); err != nil {
 			return nil, gerror.Wrap(err, "更新收容库失败")
