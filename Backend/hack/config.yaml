@@ -1,0 +1,15 @@
+gfcli:
+  gen:
+    dao:
+      - link: "mysql:root:123456@tcp(127.0.0.1:3306)/trangleagent"
+        table: "forum_sections,forum_posts,forum_comments,forum_boards,department,containment_repo,users,login_field,trpg_room,role_cards,trpg_room_member"
+        descriptionTag: true
+        jsonCase: "CamelLower" # 生成json字段时，字段名使用驼峰命名
+  docker:
+    build: "-a amd64 -s linux -p temp -ew"
+    tagPrefixes:
+      - my.image.pub/my-app
+server:
+  address:     ":8000"
+  openapiPath: "/api.json"
+  swaggerPath: "/swagger"

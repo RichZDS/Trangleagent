@@ -1,0 +1,20 @@
+// =================================================================================
+// Code generated and maintained by GoFrame CLI tool. DO NOT EDIT.
+// =================================================================================
+
+package login
+
+import (
+	"context"
+
+	"TrangleAgent/api/login/v1"
+)
+
+type ILoginV1 interface {
+	Login(ctx context.Context, req *v1.LoginReq) (res *v1.LoginRes, err error)
+	Register(ctx context.Context, req *v1.RegisterReq) (res *v1.RegisterRes, err error)
+	Logout(ctx context.Context, req *v1.LogoutReq) (res *v1.LogoutRes, err error)
+	LoginByEmail(ctx context.Context, req *v1.LoginByEmailReq) (res *v1.LoginByEmailRes, err error)
+	RegisterByEmail(ctx context.Context, req *v1.RegisterByEmailReq) (res *v1.RegisterByEmailRes, err error)
+	SendVerificationCode(ctx context.Context, req *v1.SendVerificationCodeReq) (res *v1.SendVerificationCodeRes, err error)
+}

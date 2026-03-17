@@ -1,0 +1,2 @@
+export interface TrangleAgentApiContainmentV1ContainmentRepoDeleteRes {
+}
