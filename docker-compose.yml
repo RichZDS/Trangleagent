@@ -1,0 +1,103 @@
+services:
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: trangleagent-backend
+    ports:
+      - "8888:8888"
+    environment:
+      - GF_GCFG_FILE=manifest/config/config.docker.yaml
+    volumes:
+      - ./Backend/manifest/config/config.docker.yaml:/app/manifest/config/config.docker.yaml:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    networks:
+      - trangleagent
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: trangleagent-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - trangleagent
+
+  mysql:
+    image: mysql:8.0
+    container_name: trangleagent-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "12345678"
+      MYSQL_DATABASE: trangleagent
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./Backend/manifest/sql:/docker-entrypoint-initdb.d:ro
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - trangleagent
+
+  minio:
+    image: minio/minio:latest
+    container_name: trangleagent-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - trangleagent
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: trangleagent-minio-init
+    depends_on:
+      minio:
+        condition: service_started
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      mc alias set myminio http://minio:9000 minioadmin minioadmin;
+      mc mb myminio/trangleagent --ignore-existing;
+      exit 0;
+      "
+    networks:
+      - trangleagent
+
+  # RabbitMQ 可选（聊天室多实例广播）
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: trangleagent-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - trangleagent
+
+volumes:
+  mysql_data:
+  minio_data:
+
+networks:
+  trangleagent:
+    driver: bridge

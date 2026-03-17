@@ -1,0 +1,18 @@
+# Docker 部署配置（由 docker-compose 挂载，覆盖默认配置）
+server:
+  address: ":8888"
+
+database:
+  default:
+    link: "root:12345678@tcp(mysql:3306)/trangleagent"
+    debug: false
+
+minio:
+  endpoint: "minio:9000"
+  accessKey: "minioadmin"
+  secretKey: "minioadmin"
+  bucket: "trangleagent"
+  useSSL: false
+
+rabbitmq:
+  url: "amqp://guest:guest@rabbitmq:5672/"
