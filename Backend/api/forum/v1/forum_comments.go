@@ -15,6 +15,7 @@ type ForumCommentsLikeReq struct {
 
 // ForumCommentsLikeRes 点赞评论响应
 type ForumCommentsLikeRes struct {
+	IsLiked bool `json:"isLiked" description:"当前用户是否已点赞"`
 }
 
 // ForumCommentsCreateReq 创建评论请求

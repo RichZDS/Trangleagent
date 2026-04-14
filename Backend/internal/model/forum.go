@@ -73,6 +73,7 @@ type ForumPostViewParams struct {
 	LastCommentAt *gtime.Time `json:"lastCommentAt" description:"最后评论时间"`
 	CreatedAt     *gtime.Time `json:"createdAt"     description:"发帖时间"`
 	UpdatedAt     *gtime.Time `json:"updatedAt"     description:"更新时间"`
+	IsLiked       bool        `json:"isLiked"       description:"当前用户是否已点赞" orm:"-"`
 }
 
 // ForumComment 论坛评论
@@ -101,4 +102,5 @@ type ForumCommentViewParams struct {
 	LikeCount     uint        `json:"likeCount"     description:"点赞数"`
 	CreatedAt     *gtime.Time `json:"createdAt"     description:"评论创建时间"`
 	UpdatedAt     *gtime.Time `json:"updatedAt"     description:"评论更新时间"`
+	IsLiked       bool        `json:"isLiked"       description:"当前用户是否已点赞"`
 }

@@ -3,12 +3,14 @@ package Forum
 import (
 	v1 "TrangleAgent/api/forum/v1"
 	"TrangleAgent/internal/dao"
+	"TrangleAgent/internal/middleware"
 	"TrangleAgent/internal/model"
 	"TrangleAgent/internal/model/entity"
 	"TrangleAgent/internal/model/response"
 	"TrangleAgent/internal/service"
 	"context"
 
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/os/gtime"
 )
@@ -25,12 +27,75 @@ func init() {
 }
 
 func (s *sForumPosts) Like(ctx context.Context, req *v1.ForumPostsLikeReq) (res *v1.ForumPostsLikeRes, err error) {
-	// 帖子点赞数+1
-	_, err = dao.ForumPosts.Ctx(ctx).Where(dao.ForumPosts.Columns().Id, req.Id).Increment(dao.ForumPosts.Columns().LikeCount, 1)
+	userId, err := getUserIdFromCtx(ctx)
 	if err != nil {
-		return nil, gerror.Wrap(err, "点赞失败")
+		return nil, err
 	}
-	return &v1.ForumPostsLikeRes{}, nil
+
+	var isLiked bool
+	err = dao.UserLikes.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		count, e := dao.UserLikes.Ctx(ctx).
+			Where(dao.UserLikes.Columns().UserId, userId).
+			Where(dao.UserLikes.Columns().TargetType, "post").
+			Where(dao.UserLikes.Columns().TargetId, req.Id).
+			Count()
+		if e != nil {
+			return e
+		}
+		if count > 0 {
+			// 已点赞 → 取消点赞
+			_, e = dao.UserLikes.Ctx(ctx).
+				Where(dao.UserLikes.Columns().UserId, userId).
+				Where(dao.UserLikes.Columns().TargetType, "post").
+				Where(dao.UserLikes.Columns().TargetId, req.Id).
+				Delete()
+			if e != nil {
+				return e
+			}
+			_, e = dao.ForumPosts.Ctx(ctx).
+				Where(dao.ForumPosts.Columns().Id, req.Id).
+				Decrement(dao.ForumPosts.Columns().LikeCount, 1)
+			isLiked = false
+			return e
+		}
+		// 未点赞 → 执行点赞
+		_, e = dao.UserLikes.Ctx(ctx).Data(entity.UserLikes{
+			UserId:     userId,
+			TargetType: "post",
+			TargetId:   req.Id,
+		}).Insert()
+		if e != nil {
+			return e
+		}
+		_, e = dao.ForumPosts.Ctx(ctx).
+			Where(dao.ForumPosts.Columns().Id, req.Id).
+			Increment(dao.ForumPosts.Columns().LikeCount, 1)
+		isLiked = true
+		return e
+	})
+	if err != nil {
+		return nil, gerror.Wrap(err, "点赞操作失败")
+	}
+	return &v1.ForumPostsLikeRes{IsLiked: isLiked}, nil
+}
+
+// getUserIdFromCtx 从 context 中获取当前登录用户的 ID
+func getUserIdFromCtx(ctx context.Context) (uint64, error) {
+	username, ok := ctx.Value(middleware.CtxUsername).(string)
+	if !ok || username == "" {
+		return 0, gerror.New("未登录或无法获取用户信息")
+	}
+	var user entity.Users
+	err := dao.Users.Ctx(ctx).
+		Where(dao.Users.Columns().Account, username).
+		Scan(&user)
+	if err != nil {
+		return 0, gerror.Wrap(err, "查询用户信息失败")
+	}
+	if user.Id == 0 {
+		return 0, gerror.New("用户不存在")
+	}
+	return user.Id, nil
 }
 
 func (s *sForumPosts) Create(ctx context.Context, req *v1.ForumPostsCreateReq) (res *v1.ForumPostsCreateRes, err error) {
@@ -107,16 +172,14 @@ func (s *sForumPosts) Delete(ctx context.Context, req *v1.ForumPostsDeleteReq) (
 }
 
 func (s *sForumPosts) View(ctx context.Context, req *v1.ForumPostsViewReq) (res *v1.ForumPostsViewRes, err error) {
-	// 根据id查询帖子
 	var post model.ForumPostViewParams
 	err = dao.ForumPosts.Ctx(ctx).Where(dao.ForumPosts.Columns().Id, req.Id).Scan(&post)
 	if err != nil {
 		return nil, gerror.Wrap(err, "查询帖子失败")
 	}
-	// 浏览量 +1
 	_, _ = dao.ForumPosts.Ctx(ctx).Where(dao.ForumPosts.Columns().Id, req.Id).Increment(dao.ForumPosts.Columns().ViewCount, 1)
 	post.ViewCount++
-	// 查询用户名称
+
 	type User struct {
 		Name string `json:"name" orm:"nickname" description:"用户昵称"`
 	}
@@ -125,6 +188,16 @@ func (s *sForumPosts) View(ctx context.Context, req *v1.ForumPostsViewReq) (res 
 	if err != nil {
 		return nil, gerror.Wrap(err, "查询用户昵称失败")
 	}
+
+	if userId, e := getUserIdFromCtx(ctx); e == nil && userId > 0 {
+		cnt, _ := dao.UserLikes.Ctx(ctx).
+			Where(dao.UserLikes.Columns().UserId, userId).
+			Where(dao.UserLikes.Columns().TargetType, "post").
+			Where(dao.UserLikes.Columns().TargetId, req.Id).
+			Count()
+		post.IsLiked = cnt > 0
+	}
+
 	return &v1.ForumPostsViewRes{
 		UserName:            user.Name,
 		ForumPostViewParams: post,
@@ -132,6 +205,14 @@ func (s *sForumPosts) View(ctx context.Context, req *v1.ForumPostsViewReq) (res 
 }
 
 func (s *sForumPosts) List(ctx context.Context, req *v1.ForumPostsListReq) (res *v1.ForumPostsListRes, err error) {
+	// A/B Testing: 检查请求所属的分组
+	abGroup := ctx.Value(middleware.CtxABTestGroup)
+	if abGroup != nil && abGroup.(string) == middleware.GroupB {
+		// B组变体逻辑：对查询出的帖子列表加入推荐/热度加权因子
+		// 或者故意制造某个行为用于测试。这里我们简单的在返回值里加一个标记来证明它是实验组
+		// 我们先执行原有逻辑，然后在遍历的时候修改一点东西
+	}
+
 	// 查询帖子列表
 
 	mod := dao.ForumPosts.Ctx(ctx)
@@ -211,10 +292,34 @@ func (s *sForumPosts) List(ctx context.Context, req *v1.ForumPostsListReq) (res 
 			userMap[user.Id] = user.Name
 		}
 
-		// 关联用户名称
+		// 批量查询当前用户的点赞状态
+		var likedPostIds map[uint64]struct{}
+		if userId, e := getUserIdFromCtx(ctx); e == nil && userId > 0 {
+			postIds := make([]uint64, 0, len(list))
+			for _, item := range list {
+				postIds = append(postIds, item.Id)
+			}
+			var likedRecords []entity.UserLikes
+			_ = dao.UserLikes.Ctx(ctx).
+				Where(dao.UserLikes.Columns().UserId, userId).
+				Where(dao.UserLikes.Columns().TargetType, "post").
+				Where(dao.UserLikes.Columns().TargetId, postIds).
+				Scan(&likedRecords)
+			likedPostIds = make(map[uint64]struct{}, len(likedRecords))
+			for _, r := range likedRecords {
+				likedPostIds[r.TargetId] = struct{}{}
+			}
+		}
+
 		for _, item := range list {
 			if name, ok := userMap[item.UserId]; ok {
 				item.Name = name
+			}
+			if likedPostIds != nil {
+				_, item.IsLiked = likedPostIds[item.Id]
+			}
+			if abGroup != nil && abGroup.(string) == middleware.GroupB {
+				item.Title = "[新版本] " + item.Title
 			}
 		}
 	}

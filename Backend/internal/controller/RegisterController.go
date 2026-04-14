@@ -25,6 +25,7 @@ func RegisterControllers(group *ghttp.RouterGroup) {
 	// 其他需要JWT验证的接口
 	group.Group("/", func(g *ghttp.RouterGroup) {
 		g.Middleware(middleware.JWTAuth)
+		g.Middleware(middleware.ABTesting)
 		g.Bind(
 			user.NewV1(),
 			user.NewRoleV1(),

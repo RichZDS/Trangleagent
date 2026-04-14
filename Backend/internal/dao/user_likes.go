@@ -8,15 +8,15 @@ import (
 	"TrangleAgent/internal/dao/internal"
 )
 
-// subscribeDao is the data access object for the table subscribe.
+// userLikesDao is the data access object for the table user_likes.
 // You can define custom methods on it to extend its functionality as needed.
-type subscribeDao struct {
-	*internal.SubscribeDao
+type userLikesDao struct {
+	*internal.UserLikesDao
 }
 
 var (
-	// Subscribe is a globally accessible object for table subscribe operations.
-	Subscribe = subscribeDao{internal.NewSubscribeDao()}
+	// UserLikes is a globally accessible object for table user_likes operations.
+	UserLikes = userLikesDao{internal.NewUserLikesDao()}
 )
 
 // Add your custom methods and functionality below.

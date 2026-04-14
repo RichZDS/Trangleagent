@@ -18,12 +18,10 @@ CREATE TABLE `users` (
   `gender` TINYINT NOT NULL DEFAULT 0 COMMENT '性别：0未知 1男 2女',
   `birth_date` DATE NULL DEFAULT NULL COMMENT '生日',
   `user_type` VARCHAR(32) NOT NULL DEFAULT 'user' COMMENT '用户类型：user/admin',
-  `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `reality_role` VARCHAR(128) NOT NULL DEFAULT '' COMMENT '现实身份/角色',
-  `abnormal_role` VARCHAR(128) NOT NULL DEFAULT '' COMMENT '异常身份/角色',
-  `job_title` VARCHAR(128) NOT NULL DEFAULT '' COMMENT '职位',
-  `email` VARCHAR(128) NOT NULL DEFAULT '' COMMENT '邮箱',
+    `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `extra_info` JSON NULL COMMENT '扩展配置信息',
+    `email` VARCHAR(128) NOT NULL DEFAULT '' COMMENT '邮箱',
   `vip_start_at` DATETIME NULL DEFAULT NULL COMMENT 'VIP开始时间',
   `vip_end_at` DATETIME NULL DEFAULT NULL COMMENT 'VIP结束时间',
   `active_role_id` BIGINT UNSIGNED NULL DEFAULT NULL COMMENT '当前选中的角色卡ID',
@@ -80,6 +78,7 @@ CREATE TABLE `role_cards` (
   `qa_presence` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'QA Presence (0-100)',
   `qa_professional` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'QA Professionalism (0-100)',
   `qa_discretion` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'QA Discretion (0-100)',
+  `extra_info` JSON NULL COMMENT '扩展配置信息',
   `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
@@ -208,24 +207,6 @@ CREATE TABLE `forum_posts` (
 -- -----------------------------------------------------------------------------
 -- 9. 论坛评论
 -- -----------------------------------------------------------------------------
-DROP TABLE IF EXISTS `forum_comments`;
-CREATE TABLE `forum_comments` (
-  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '评论ID',
-  `post_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '所属帖子ID',
-  `user_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '评论用户ID',
-  `parent_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '父评论ID：0=一级评论',
-  `reply_to_user_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '回复的用户ID',
-  `content` TEXT COMMENT '评论内容',
-  `status` VARCHAR(32) NOT NULL DEFAULT 'normal' COMMENT '状态：normal/deleted/audit/reject',
-  `like_count` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '点赞数',
-  `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `deleted_at` DATETIME NULL DEFAULT NULL COMMENT '软删除时间',
-  PRIMARY KEY (`id`),
-  KEY `idx_post_id` (`post_id`),
-  KEY `idx_user_id` (`user_id`),
-  KEY `idx_parent_id` (`parent_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='论坛评论';
 
 -- -----------------------------------------------------------------------------
 -- 10. 收容库

@@ -21,48 +21,44 @@ type UsersDao struct {
 
 // UsersColumns defines and stores column names for the table users.
 type UsersColumns struct {
-	Id           string // 用户ID
-	Account      string // 账号
-	Password     string // 密码哈希
-	Nickname     string // 昵称
-	Gender       string // 性别：0未知 1男 2女
-	BirthDate    string // 生日
-	UserType     string // 用户类型：user/admin
-	CreatedAt    string // 创建时间
-	UpdatedAt    string // 更新时间
-	RealityRole  string // 现实身份/角色
-	AbnormalRole string // 异常身份/角色
-	JobTitle     string // 职位
-	Email        string // 邮箱
-	VipStartAt   string // VIP开始时间
-	VipEndAt     string // VIP结束时间
-	ActiveRoleId string // 当前选中的角色卡ID
+	Id            string // 用户ID
+	Account       string // 账号
+	Password      string // 密码哈希
+	Nickname      string // 昵称
+	Gender        string // 性别：0未知 1男 2女
+	BirthDate     string // 生日
+	UserType      string // 用户类型：user/admin
+	CreatedAt     string // 创建时间
+	UpdatedAt     string // 更新时间
+	Email         string // 邮箱
+	VipStartAt    string // VIP开始时间
+	VipEndAt      string // VIP结束时间
+	ActiveRoleId  string // 当前选中的角色卡ID
 	Exp           string // 经验值（经验条）
 	Level         string // 等级（1+exp/100）
 	LastCheckinAt string // 上次签到时间
+	ExtraInfo     string // 扩展配置信息
 }
 
 // usersColumns holds the columns for the table users.
 var usersColumns = UsersColumns{
-	Id:           "id",
-	Account:      "account",
-	Password:     "password",
-	Nickname:     "nickname",
-	Gender:       "gender",
-	BirthDate:    "birth_date",
-	UserType:     "user_type",
-	CreatedAt:    "created_at",
-	UpdatedAt:    "updated_at",
-	RealityRole:  "reality_role",
-	AbnormalRole: "abnormal_role",
-	JobTitle:     "job_title",
-	Email:        "email",
-	VipStartAt:   "vip_start_at",
-	VipEndAt:     "vip_end_at",
-	ActiveRoleId: "active_role_id",
+	Id:            "id",
+	Account:       "account",
+	Password:      "password",
+	Nickname:      "nickname",
+	Gender:        "gender",
+	BirthDate:     "birth_date",
+	UserType:      "user_type",
+	CreatedAt:     "created_at",
+	UpdatedAt:     "updated_at",
+	Email:         "email",
+	VipStartAt:    "vip_start_at",
+	VipEndAt:      "vip_end_at",
+	ActiveRoleId:  "active_role_id",
 	Exp:           "exp",
 	Level:         "level",
 	LastCheckinAt: "last_checkin_at",
+	ExtraInfo:     "extra_info",
 }
 
 // NewUsersDao creates and returns a new DAO object for table data access.

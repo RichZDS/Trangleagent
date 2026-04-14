@@ -37,4 +37,5 @@ type RoleCards struct {
 	QaDiscretion   any         // QA Discretion (0-100)
 	CreatedAt      *gtime.Time // 创建时间
 	UpdatedAt      *gtime.Time // 更新时间
+	ExtraInfo      any         // 扩展配置信息
 }

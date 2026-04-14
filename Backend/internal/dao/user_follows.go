@@ -8,15 +8,15 @@ import (
 	"TrangleAgent/internal/dao/internal"
 )
 
-// fansDao is the data access object for the table fans.
+// userFollowsDao is the data access object for the table user_follows.
 // You can define custom methods on it to extend its functionality as needed.
-type fansDao struct {
-	*internal.FansDao
+type userFollowsDao struct {
+	*internal.UserFollowsDao
 }
 
 var (
-	// Fans is a globally accessible object for table fans operations.
-	Fans = fansDao{internal.NewFansDao()}
+	// UserFollows is a globally accessible object for table user_follows operations.
+	UserFollows = userFollowsDao{internal.NewUserFollowsDao()}
 )
 
 // Add your custom methods and functionality below.

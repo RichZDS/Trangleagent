@@ -46,6 +46,7 @@ type RoleCardsColumns struct {
 	QaDiscretion   string // QA Discretion (0-100)
 	CreatedAt      string // 创建时间
 	UpdatedAt      string // 更新时间
+	ExtraInfo      string // 扩展配置信息
 }
 
 // roleCardsColumns holds the columns for the table role_cards.
@@ -75,6 +76,7 @@ var roleCardsColumns = RoleCardsColumns{
 	QaDiscretion:   "qa_discretion",
 	CreatedAt:      "created_at",
 	UpdatedAt:      "updated_at",
+	ExtraInfo:      "extra_info",
 }
 
 // NewRoleCardsDao creates and returns a new DAO object for table data access.

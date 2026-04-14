@@ -35,4 +35,5 @@ type RoleCards struct {
 	QaDiscretion   uint        `json:"qaDiscretion"   orm:"qa_discretion"   description:"QA Discretion (0-100)"`      // QA Discretion (0-100)
 	CreatedAt      *gtime.Time `json:"createdAt"      orm:"created_at"      description:"创建时间"`                       // 创建时间
 	UpdatedAt      *gtime.Time `json:"updatedAt"      orm:"updated_at"      description:"更新时间"`                       // 更新时间
+	ExtraInfo      string      `json:"extraInfo"      orm:"extra_info"      description:"扩展配置信息"`                     // 扩展配置信息
 }
